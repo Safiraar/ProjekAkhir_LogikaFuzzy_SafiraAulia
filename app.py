@@ -132,7 +132,7 @@ elif page == "Pembanding":
         saw_ranks = saw_proc['result'][['score','rank']].rename(columns={"score":"score_saw","rank":"rank_saw"})
         wp_ranks = wp_proc['result'][['V','rank']].rename(columns={"V":"score_wp","rank":"rank_wp"})
         combined = pd.concat([saw_ranks, wp_ranks], axis=1)
-        combined.index = st.session_state.df['kode']
+        combined.index = st.session_state.df['Alternatif']
         st.dataframe(combined.sort_values(['rank_saw','rank_wp']))
 
         st.subheader("Analisis kecocokan")
