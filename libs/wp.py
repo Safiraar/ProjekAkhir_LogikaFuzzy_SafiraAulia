@@ -2,35 +2,67 @@
 import pandas as pd
 import numpy as np
 
+
 def wp_full_process(df: pd.DataFrame, criteria_meta: dict, weights: dict):
     """
-    Weighted Product steps:
-    1) For cost criteria, convert weight to negative (power)
-    2) Compute S_i = product_j (x_ij ^ w_j)
-    3) Compute V_i = S_i / sum(S_i)
-    Return dict with intermediate matrices and result.
+    Weighted Product (WP) steps:
+      1. Cost → bobot menjadi negatif (exponent)
+      2. Hitung S_i = ∏ (x_ij ^ w_j)
+      3. Hitung V_i = S_i / Σ S_i
+    Revisi:
+      • Index diubah menjadi A1–A5 dst.
+      • Pada result: hanya tampilkan V dan rank (S disembunyikan).
     """
-    crits = [c for c in criteria_meta.keys()]
+
+    crits = list(criteria_meta.keys())
+
+    # ------------------------------------------------------------
+    # 1. Ubah index menjadi A1–A5
+    # ------------------------------------------------------------
+    new_index = [f"A{i+1}" for i in range(len(df))]
+    df = df.copy()
+    df.index = new_index
+
+    # Raw matrix
     X = df[crits].astype(float).copy()
-    # weights as pandas series
+
+    # Bobot
     W = pd.Series(weights)
-    # For cost, weight becomes negative exponent
+
+    # ------------------------------------------------------------
+    # 2. Exponents (cost → negatif)
+    # ------------------------------------------------------------
     exp = W.copy()
     for c in crits:
         if criteria_meta[c]['attr'] == 'cost':
-            exp[c] = -abs(W[c])
-    # compute S_i
-    # to avoid nan/inf if x=0, add tiny epsilon
-    eps = 1e-9
+            exp[c] = -abs(W[c])  # cost → pangkat negatif
+
+    # ------------------------------------------------------------
+    # 3. Hitung S_i
+    # ------------------------------------------------------------
+    # Tambahkan epsilon agar tidak terjadi log(0)
+    eps = 1e-12
     S = X.clip(lower=eps).pow(exp).prod(axis=1)
+
+    # ------------------------------------------------------------
+    # 4. Hitung V_i
+    # ------------------------------------------------------------
     V = S / S.sum()
-    result = pd.DataFrame({"S": S, "V": V})
-    result['rank'] = result['V'].rank(ascending=False, method='min').astype(int)
+
+    # ------------------------------------------------------------
+    # 5. Hasil akhir (HANYA V dan rank)
+    # ------------------------------------------------------------
+    result = pd.DataFrame({
+        "V": V.round(6),
+        "rank": V.rank(ascending=False, method="min").astype(int)
+    })
+    result.index = new_index
+
     return {
         "raw_matrix": X,
         "exponents": exp,
-        "S": S.round(12),
+        "S": S.round(12),       # tetap dikembalikan tapi tidak ditampilkan di result
         "V": V.round(6),
-        "result": result.round(6),
+        "result": result,       # hanya V & rank
         "weights": W
     }
