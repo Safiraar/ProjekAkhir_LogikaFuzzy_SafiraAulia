@@ -20,7 +20,7 @@ df_init, criteria_meta, default_weights = load_initial()
 
 # --- Sidebar navigation ---
 st.sidebar.title("Navigasi")
-page = st.sidebar.echo("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
+page = st.sidebar.radio("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
 
 # --- Home page ---
 if page == "Home":
