@@ -3,7 +3,8 @@ import pandas as pd
 from libs import utils
 
 st.title("Home")
-
+st.sidebar.header("Home")
+page = st.sidebar("Pilih Halaman", ["Home", "Perhitungan", "Perbandingan"])
 # load data & criteria
 df_init = utils.load_data()
 criteria_meta = utils.DEFAULT_CRITERIA
