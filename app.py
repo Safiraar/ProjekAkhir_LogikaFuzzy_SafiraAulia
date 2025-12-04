@@ -20,11 +20,12 @@ df_init, criteria_meta, default_weights = load_initial()
 
 # --- Sidebar navigation ---
 st.sidebar.title("Navigasi")
-page = st.sidebar.slider("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
+page = st.sidebar.radio("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
 
 # --- Home page ---
 if page == "Home":
     st.title("Sistem Pendukung Keputusan Fuzzy — Metode SAW & WP")
+    st.text("Dibuat oleh Safira Aulia Rahma (4611422125)")
     st.markdown("""
     **Deskripsi**  
     Aplikasi ini menghitung peringkat alternatif berdasarkan metode **Simple Additive Weighting (SAW)**  
