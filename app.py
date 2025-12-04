@@ -24,7 +24,7 @@ page = st.sidebar.radio("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
 
 # --- Home page ---
 if page == "Home":
-    st.title("Sistem Pendukung Keputusan Fuzzy — Metode SAW & WP")
+    st.title("Sistem Pendukung Keputusan dalam Layanan Hosting Website dengan Logika Fuzzy (Metode SAW & Metode WP")
     st.text("Dibuat oleh Safira Aulia Rahma (4611422125)")
     st.markdown("""
     **Deskripsi**  
