@@ -41,7 +41,7 @@ if page == "Home":
     st.table(crit_table)
 
     st.subheader("Data Alternatif (nilai awal)")
-    st.dataframe(df_init.style.set_precision(0))
+    st.dataframe(df_init)
     st.caption("Alternatif & nilai awal (C1..C5) sesuai tabel manual. :contentReference[oaicite:1]{index=1}")
 
 # --- Perhitungan page ---
