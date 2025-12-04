@@ -30,7 +30,7 @@ if page == "Home":
     Aplikasi ini menghitung peringkat alternatif berdasarkan metode **Simple Additive Weighting (SAW)**  
     dan **Weighted Product (WP)**. Data awal (alternatif, nilai kriteria, bobot) dimuat dari file sumber (sama persis dengan penghitungan manual Anda).  
     """)
-    st.info("Sumber data awal digunakan sesuai dokumen penghitungan manual yang Anda upload. (lihat PDF sumber).")
+    st.info("Sumber data awal digunakan sesuai dengan penghitungan Manual denga Excel.")
     # show criteria table
     st.subheader("Kriteria & Bobot (default)")
     crit_table = pd.DataFrame.from_dict({k: {"Nama": criteria_meta[k]['name'],
@@ -41,7 +41,7 @@ if page == "Home":
     st.table(crit_table)
 
     st.subheader("Data Alternatif (nilai awal)")
-    st.dataframe(df_init.style.set_precision(0))
+    st.dataframe(df_init)
     st.caption("Alternatif & nilai awal (C1..C5) sesuai tabel manual. :contentReference[oaicite:1]{index=1}")
 
 # --- Perhitungan page ---
