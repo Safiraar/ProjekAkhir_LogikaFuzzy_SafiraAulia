@@ -112,7 +112,7 @@ elif page == "Perhitungan":
             st.dataframe(wp_proc['exponents'].to_frame('exponent'))
         with st.expander("3. Vektor S"):
             st.dataframe(wp_proc['S'].to_frame("S"))
-        with st.expander("4. Hitung V & Perangkingan"):
+        with st.expander("4. Vektor V & Perangkingan"):
             st.dataframe(wp_proc['result'].sort_values("V", ascending=False))
 
         # store results in session for comparison page
