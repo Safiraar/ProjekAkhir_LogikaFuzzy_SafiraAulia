@@ -6,7 +6,10 @@ from libs import wp as wp_mod
 
 st.title("Perhitungan SAW & WP")
 
-df_init, criteria_meta, default_weights = utils.load_data(), utils.DEFAULT_CRITERIA, {k: utils.DEFAULT_CRITERIA[k]["weight"] for k in utils.DEFAULT_CRITERIA}
+# load data & criteria
+df_init = utils.load_data()
+criteria_meta = utils.DEFAULT_CRITERIA
+default_weights = {k: criteria_meta[k]["weight"] for k in criteria_meta}
 
 # session state editable data
 if "df" not in st.session_state:
@@ -28,14 +31,17 @@ st.subheader("Edit Bobot Kriteria")
 cols = st.columns(len(criteria_meta))
 new_weights = {}
 
-for i, c in enumerate(criteria_meta):
+# pastikan iterasi sesuai keys urutan
+keys = list(criteria_meta.keys())
+for i, c in enumerate(keys):
     with cols[i]:
         new_weights[c] = st.number_input(
-            c,
-            value=float(st.session_state.weights[c]),
+            f"{c} - {criteria_meta[c]['name']}",
+            value=float(st.session_state.weights.get(c, criteria_meta[c]['weight'])),
             min_value=0.0,
             max_value=1.0,
-            step=0.01
+            step=0.01,
+            key=f"w_{c}"
         )
 
 if st.button("Simpan Bobot"):
