@@ -90,13 +90,13 @@ elif page == "Perhitungan":
 
         # Show SAW details
         st.subheader("Hasil SAW — Langkah demi langkah")
-        with st.expander("1. Matriks Awal (X)"):
+        with st.expander("1. Matriks Awal"):
             st.dataframe(saw_proc['raw_matrix'])
-        with st.expander("2. Normalisasi (r_ij)"):
+        with st.expander("2. Normalisasi Data"):
             st.write("Untuk benefit: r_ij = x_ij / max_j ; untuk cost: r_ij = min_j / x_ij")
             st.dataframe(saw_proc['normalized'])
             st.caption(f"max per kriteria: {saw_proc['max_vals'].to_dict()} | min per kriteria: {saw_proc['min_vals'].to_dict()}")
-        with st.expander("3. Perkalian dengan bobot (r_ij * w_j)"):
+        with st.expander("3. Perkalian dengan bobot"):
             st.write("Bobot yang dipakai:")
             st.write(saw_proc['weights'])
             st.dataframe(saw_proc['weighted_matrix'])
@@ -105,14 +105,14 @@ elif page == "Perhitungan":
 
         # Show WP details
         st.subheader("Hasil WP — Langkah demi langkah")
-        with st.expander("1. Matriks Awal (X)"):
+        with st.expander("1. Matriks Awal"):
             st.dataframe(wp_proc['raw_matrix'])
-        with st.expander("2. Eksponen (w_j atau -w_j bila cost)"):
+        with st.expander("2. Eksponen"):
             st.write("Eksponen (untuk cost jadi negatif):")
             st.dataframe(wp_proc['exponents'].to_frame('exponent'))
-        with st.expander("3. Hitung S_i = product(x_ij ^ exponent_j)"):
+        with st.expander("3. Vektor S"):
             st.dataframe(wp_proc['S'].to_frame("S"))
-        with st.expander("4. Hitung V_i = S_i / sum(S_i) dan perankingan"):
+        with st.expander("4. Hitung V & Perangkingan"):
             st.dataframe(wp_proc['result'].sort_values("V", ascending=False))
 
         # store results in session for comparison page
