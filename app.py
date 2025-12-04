@@ -56,7 +56,7 @@ elif page == "Perhitungan":
 
     # show editable data editor
     st.subheader("Tabel Alternatif (editable)")
-    edited = st.experimental_data_editor(st.session_state.df, num_rows="dynamic")
+    edited = st.data_editor(st.session_state.df, num_rows="dynamic")
     if st.button("Simpan perubahan tabel"):
         st.session_state.df = edited.copy()
         st.success("Perubahan disimpan ke session.")
