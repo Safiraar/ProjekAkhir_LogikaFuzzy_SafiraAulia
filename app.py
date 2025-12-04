@@ -5,7 +5,7 @@ from libs import utils
 from libs import saw as saw_mod
 from libs import wp as wp_mod
 
-st.set_page_config(page_title="Sistem Pendukung Keputusan Logika Fuzzy (Metode SAW & Metode WP)", layout="wide")
+st.set_page_config(page_title="Sistem Pendukung Keputusan dalam Layanan Hosting Website dengan Logika Fuzzy (Metode SAW & Metode WP)", layout="wide")
 
 # --- load initial data ---
 @st.cache_data
