@@ -5,7 +5,7 @@ from libs import utils
 from libs import saw as saw_mod
 from libs import wp as wp_mod
 
-st.set_page_config(page_title="Sistem Keputusan Fuzzy (SAW & WP)", layout="wide")
+st.set_page_config(page_title="Sistem Pendukung Keputusan Logika Fuzzy (Metode SAW & Metode WP)", layout="wide")
 
 # --- load initial data ---
 @st.cache_data
@@ -20,17 +20,17 @@ df_init, criteria_meta, default_weights = load_initial()
 
 # --- Sidebar navigation ---
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
+page = st.sidebar.slider("Pilih Halaman", ["Home", "Perhitungan", "Pembanding"])
 
 # --- Home page ---
 if page == "Home":
-    st.title("Sistem Keputusan Fuzzy — Metode SAW & WP")
+    st.title("Sistem Pendukung Keputusan Fuzzy — Metode SAW & WP")
     st.markdown("""
     **Deskripsi**  
     Aplikasi ini menghitung peringkat alternatif berdasarkan metode **Simple Additive Weighting (SAW)**  
     dan **Weighted Product (WP)**. Data awal (alternatif, nilai kriteria, bobot) dimuat dari file sumber (sama persis dengan penghitungan manual Anda).  
     """)
-    st.info("Sumber data awal digunakan sesuai dokumen penghitungan manual yang Anda upload. (lihat PDF sumber).")
+    st.info("Sumber data awal digunakan sesuai dengan penghitungan manual di excel.")
     # show criteria table
     st.subheader("Kriteria & Bobot (default)")
     crit_table = pd.DataFrame.from_dict({k: {"Nama": criteria_meta[k]['name'],
