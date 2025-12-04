@@ -154,4 +154,4 @@ elif page == "Pembanding":
             st.write("Semua alternatif memiliki ranking yang sama pada kedua metode.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("Aplikasi by: Safira[oaicite:2]{index=2}")
+st.sidebar.caption("Aplikasi by: Safira- Logika Fuzzy")
