@@ -36,12 +36,12 @@ if page == "Home":
     st.subheader("Kriteria & Bobot (default)")
     crit_table = pd.DataFrame.from_dict({k: {"Nama": criteria_meta[k]['name'],
                                              "Atribut": criteria_meta[k]['attr'],
-                                             "Bobot (default)": criteria_meta[k]['weight']} for k in criteria_meta},
+                                             "Bobot": criteria_meta[k]['weight']} for k in criteria_meta},
                                         orient="index")
     crit_table.index.name = "Kode Kriteria"
     st.table(crit_table)
 
-    st.subheader("Data Alternatif (nilai awal)")
+    st.subheader("Data Alternatif")
     st.dataframe(df_init)
     st.caption("Alternatif & nilai awal (C1..C5) sesuai tabel manual. :contentReference[oaicite:1]{index=1}")
 
