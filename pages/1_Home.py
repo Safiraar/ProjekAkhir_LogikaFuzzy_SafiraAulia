@@ -4,7 +4,10 @@ from libs import utils
 
 st.title("Home")
 
-df_init, criteria_meta, default_weights = utils.load_data(), utils.DEFAULT_CRITERIA, {k: utils.DEFAULT_CRITERIA[k]["weight"] for k in utils.DEFAULT_CRITERIA}
+# load data & criteria
+df_init = utils.load_data()
+criteria_meta = utils.DEFAULT_CRITERIA
+default_weights = {k: criteria_meta[k]["weight"] for k in criteria_meta}
 
 st.subheader("Kriteria & Bobot (default)")
 
@@ -13,8 +16,9 @@ crit_table = pd.DataFrame.from_dict({
         "Nama": criteria_meta[k]["name"],
         "Atribut": criteria_meta[k]["attr"],
         "Bobot": criteria_meta[k]["weight"]
-    }
-} for k in criteria_meta)
+    } for k in criteria_meta
+}).T  # transpose agar kolom menjadi Nama/Atribut/Bobot dan index = kode kriteria
+                           
 
 st.table(crit_table)
 
