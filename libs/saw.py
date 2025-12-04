@@ -1,6 +1,5 @@
 # libs/saw.py
 import pandas as pd
-import numpy as np
 
 def normalize_saw(df: pd.DataFrame, criteria_meta: dict):
     """
@@ -15,13 +14,13 @@ def normalize_saw(df: pd.DataFrame, criteria_meta: dict):
     max_vals = X.max()
     min_vals = X.min()
     for c in crits:
-        if criteria_meta[c]['attr'] == 'benefit':
-            # guard divide by zero
+        if criteria_meta[c]['type'] == 'benefit' or criteria_meta[c]['type'] == 'benefit':
+            # benefit: x_ij / max_j
             maxv = max_vals[c] if max_vals[c] != 0 else 1.0
             norm[c] = X[c] / maxv
         else:  # cost
+            # cost: min_j / x_ij  (sama dengan MIN(range)*(1/x_ij))
             minv = min_vals[c] if min_vals[c] != 0 else 1.0
-            # r_ij = min / x_ij
             norm[c] = minv / X[c]
     return norm.round(6), X.round(6), max_vals.round(6), min_vals.round(6)
 
@@ -31,7 +30,6 @@ def weight_and_score_saw(norm_df: pd.DataFrame, weights: dict):
     weights: dict with keys matching norm_df.columns and values summing to 1 (or not)
     Returns weighted matrix, scores series.
     """
-    # ensure weights aligned
     W = pd.Series(weights)
     weighted = norm_df * W
     scores = weighted.sum(axis=1)
@@ -41,8 +39,19 @@ def weight_and_score_saw(norm_df: pd.DataFrame, weights: dict):
     result['rank'] = result['score'].rank(ascending=False, method='min').astype(int)
     return weighted.round(6), result.round(6)
 
-# Helper to produce step-by-step dict
 def saw_full_process(df, criteria_meta, weights):
+    """
+    Full SAW pipeline returning:
+    {
+      "raw_matrix": X,
+      "normalized": norm,
+      "weighted_matrix": weighted,
+      "result": result,
+      "max_vals": max_vals,
+      "min_vals": min_vals,
+      "weights": pd.Series(weights)
+    }
+    """
     norm, rawX, max_vals, min_vals = normalize_saw(df, criteria_meta)
     weighted, result = weight_and_score_saw(norm, weights)
     return {
