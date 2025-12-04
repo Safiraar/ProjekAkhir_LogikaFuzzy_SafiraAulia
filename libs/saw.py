@@ -1,128 +1,96 @@
+# libs/saw.py
 import pandas as pd
-import numpy as np
 
-
-# =====================================================================
-#  NORMALISASI KHUSUS UNTUK C1 (COST)
-#  Menghasilkan output persis: [1, 1, 0, 1, 1]
-# =====================================================================
-def normalize_C1_cost(df, col="C1"):
+def normalize_saw(df: pd.DataFrame, criteria_meta: dict):
     """
-    Normalisasi khusus utk C1 (cost):
-    Menggunakan inverse min-max:
-        r_i = (max - x_i) / (max - min)
-    Lalu dibulatkan -> menghasilkan 1,1,0,1,1 untuk data asli.
+    Normalisasi SAW:
+      - benefit: r_ij = x_ij / max_j
+      - cost   : r_ij = min_j / x_ij
 
-    df[col] harus numerik.
+    Inputs:
+      df: DataFrame yang berisi kolom kriteria (mis. "C1","C2",...)
+      criteria_meta: dict, mis. {"C1": {"attr":"cost"}, "C2":{"attr":"benefit"}, ...}
+
+    Returns:
+      normalized: DataFrame r_ij
+      max_vals: Series max tiap kriteria
+      min_vals: Series min tiap kriteria
     """
+    crits = list(criteria_meta.keys())
+    X = df[crits].astype(float).copy()
 
-    x = df[col].astype(float)
-    maxv = x.max()
-    minv = x.min()
-    denom = maxv - minv
+    max_vals = X.max()
+    min_vals = X.min()
 
-    if denom == 0:
-        return pd.Series(np.ones(len(x)), index=df.index)
-
-    r = (maxv - x) / denom
-
-    # Dibulatkan agar sesuai permintaan Anda.
-    return r.round(0).astype(int)
-
-
-
-# =====================================================================
-#  NORMALISASI SAW (UMUM)
-#  Benefit → r = x / max
-#  Cost → r = min / x   (kecuali C1 → metode khusus)
-# =====================================================================
-def normalize_saw(df, criteria_meta):
-    """
-    Menghasilkan matrix normalisasi SAW.
-    criteria_meta berisi:
-       { "C1": {"attr":"cost"}, "C2":{"attr":"benefit"}, ... }
-    """
-
-    X = df.copy()
-    crits = criteria_meta.keys()
-
-    # max/min tiap kriteria
-    max_vals = X[crits].max()
-    min_vals = X[crits].min()
-
-    norm = pd.DataFrame(index=X.index)
+    norm = pd.DataFrame(index=X.index, columns=crits, dtype=float)
 
     for c in crits:
-        tipe = criteria_meta[c]["attr"]
+        attr = criteria_meta[c].get("attr", criteria_meta[c].get("type", "benefit"))
+        if attr == "benefit":
+            denom = max_vals[c] if max_vals[c] != 0 else 1.0
+            norm[c] = X[c] / denom
+        else:  # cost
+            # r_ij = min_j / x_ij (hindari pembagi 0)
+            norm[c] = min_vals[c] / X[c].replace(0, 1e-12)
 
-        # ★★★ NORMALISASI KHUSUS C1 (COST) ★★★
-        if c == "C1" and tipe == "cost":
-            norm[c] = normalize_C1_cost(df, col="C1")
-            continue
-
-        # ============ BENEFIT (NORMAL) ============
-        if tipe == "benefit":
-            norm[c] = X[c] / max_vals[c]
-
-        # ============ COST (NORMAL) ============
-        else:
-            # Hindari error pembagian 0
-            norm[c] = min_vals[c] / X[c].replace(0, np.nan)
-
-    return norm, max_vals, min_vals
+    # round for neatness
+    return norm.round(6), max_vals.round(6), min_vals.round(6)
 
 
-
-# =====================================================================
-#  HITUNG SKOR SAW
-# =====================================================================
-def calculate_saw_scores(norm_matrix, weights):
+def calculate_scores(norm_df: pd.DataFrame, weights: dict):
     """
     Menghitung skor SAW:
-        score_i = sum(r_ij * w_j)
-    """
-    w_series = pd.Series(weights)
-    weighted = norm_matrix * w_series
+      score_i = sum_j ( r_ij * w_j )
 
-    scores = weighted.sum(axis=1)
-    ranks = scores.rank(ascending=False, method="dense").astype(int)
+    Returns:
+      weighted_matrix: DataFrame r_ij * w_j
+      result: DataFrame berisi 'score' dan 'rank' (rank 1 = terbesar)
+    """
+    W = pd.Series(weights)
+    # pastikan kolom urut sesuai W index
+    W = W.reindex(norm_df.columns)
+    weighted = norm_df * W
+
+    score = weighted.sum(axis=1)
+    # ranking: highest score -> rank 1
+    rank = score.rank(ascending=False, method="min").astype(int)
 
     result = pd.DataFrame({
-        "score": scores,
-        "rank": ranks
+        "score": score.round(6),
+        "rank": rank
     })
 
-    return weighted, result
+    return weighted.round(6), result
 
 
-
-# =====================================================================
-#  FUNGSI UTAMA SAW (DIPAKAI DI app.py)
-# =====================================================================
-def saw_full_process(df, criteria_meta, weights):
+def saw_full_process(df: pd.DataFrame, criteria_meta: dict, weights: dict):
     """
-    Menghasilkan semua langkah SAW:
-    - raw matrix
-    - normalisasi
-    - matrix bobot
-    - skor & ranking
-    - nilai max/min
+    Full SAW pipeline:
+      - raw_matrix (input)
+      - normalized (r_ij)
+      - weighted_matrix (r_ij * w_j)
+      - result (score & rank)
+      - max_vals, min_vals
+      - weights (Series)
+
+    Returns dict with these keys so app.py dapat menampilkan tiap langkah.
     """
+    # raw matrix (only criteria columns expected)
+    crits = list(criteria_meta.keys())
+    raw = df[crits].astype(float).copy()
 
-    raw = df.copy()
+    # 1) Normalisasi
+    normalized, max_vals, min_vals = normalize_saw(raw, criteria_meta)
 
-    # === 1. Normalisasi ===
-    normalized, max_vals, min_vals = normalize_saw(df, criteria_meta)
-
-    # === 2. Bobot & Skor ===
-    weighted_matrix, result = calculate_saw_scores(normalized, weights)
+    # 2) Bobot & skor
+    weighted_matrix, result = calculate_scores(normalized, weights)
 
     return {
         "raw_matrix": raw,
         "normalized": normalized,
-        "weights": weights,
         "weighted_matrix": weighted_matrix,
         "result": result,
         "max_vals": max_vals,
-        "min_vals": min_vals
+        "min_vals": min_vals,
+        "weights": pd.Series(weights)
     }
