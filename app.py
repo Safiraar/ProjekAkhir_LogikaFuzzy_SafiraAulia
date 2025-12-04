@@ -132,8 +132,9 @@ elif page == "Pembanding":
         saw_ranks = saw_proc['result'][['score','rank']].rename(columns={"score":"score_saw","rank":"rank_saw"})
         wp_ranks = wp_proc['result'][['V','rank']].rename(columns={"V":"score_wp","rank":"rank_wp"})
         combined = pd.concat([saw_ranks, wp_ranks], axis=1)
-        combined.index = st.session_state.df['Kode']
-        st.dataframe(combined.sort_values(['rank_saw','rank_wp']))
+        # index otomatis A1-A5 dari SAW
+        combined.index = saw_proc['result'].index
+        st.dataframe(combined)  # tidak usah sort, Anda ingin urutan tetap
 
         st.subheader("Analisis kecocokan")
         # check if top alternatives are same
